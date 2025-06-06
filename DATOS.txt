@@ -2,5 +2,7 @@
 
 cd C:\Users\Archivos\LTerminal
 
+.\venv\Scripts\activate
+
 pyinstaller LTerminal.spec
 

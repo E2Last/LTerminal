@@ -22,3 +22,13 @@ Button {
     color: white;
     margin: 1;
 }
+
+#clock {
+    height: 1;                    
+    padding: 0 1;                 
+    margin: 0;
+    color: ansi_bright_yellow;
+    text-align: center;
+    background: rgb(30, 30, 30);
+    border: none;                 
+}

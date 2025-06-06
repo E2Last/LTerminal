@@ -1,32 +1,29 @@
 import logging
 import traceback
 import os
-import logging
-import traceback
+from datetime import datetime
+from pytz import timezone
+import pytz
+import json
+import requests
+import sys
 
-# 📁 Definir ruta segura en el escritorio del usuario
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Footer, Button, Static
+from textual.containers import Vertical, Horizontal
+from textual.scroll_view import ScrollView
+
+#  Definir ruta segura en el escritorio del usuario
 log_path = os.path.join(os.path.expanduser("~"), "Desktop", "LTerminal_error.log")
 
-# ⏺️ INICIALIZAR LOG INMEDIATO
+#  INICIALIZAR LOG INMEDIATO
 logging.basicConfig(
     filename=log_path,
-    level=logging.ERROR,
+    level=logging.INFO,  # ⚠️ TEMPORAL para ver más
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
 try:
-    # Todo el resto de tu app viene dentro de este try
-    from textual.app import App, ComposeResult
-    from textual.containers import Vertical, Horizontal
-    from textual.widgets import Header, Footer, Button, Static
-    from textual.scroll_view import ScrollView
-    import requests
-    import json
-    import sys
-    import os
-    from datetime import datetime
-
     def ruta_absoluta_recurso(nombre_archivo):
         if hasattr(sys, '_MEIPASS'):
             return os.path.join(sys._MEIPASS, nombre_archivo)
@@ -43,17 +40,24 @@ try:
         CSS_PATH = ruta_absoluta_recurso("styles.css")
 
         def compose(self) -> ComposeResult:
-            yield Header()
-            with Horizontal():
-                self.noticias_widget = ScrollView()
-                self.precios_widget = PrecioPanel("Cargando precios...")
-                yield self.noticias_widget
-                yield self.precios_widget
-            yield Button("Refrescar", id="refrescar")
-            yield Footer()
+            with Vertical():
+                self.clock_widget = Static("Cargando hora...", id="clock")
+                yield self.clock_widget
+                yield Header()
+
+                with Horizontal():
+                    self.scroll_static = Static("Cargando noticias...")
+                    self.noticias_widget = ScrollView(self.scroll_static)
+                    self.precios_widget = PrecioPanel("Cargando precios...")
+                    yield self.noticias_widget
+                    yield self.precios_widget
+
+                yield Button("Refrescar", id="refrescar")
+                yield Footer()
 
         def on_mount(self):
             self.actualizar_datos()
+            self.set_interval(1, self.actualizar_reloj)
 
         def on_button_pressed(self, event):
             if event.button.id == "refrescar":
@@ -66,7 +70,7 @@ try:
                 f"[b]{n.get('title', 'Sin título')}[/b]\n[yellow]{n.get('source', {}).get('name', '')}[/yellow]\n[i]{n.get('description', '')}[/i]"
                 for n in noticias[:8]
             )
-            self.noticias_widget.update(Static(contenido))
+            self.scroll_static.update(contenido)
             self.precios_widget.update_content(precios)
 
         def obtener_noticias(self):
@@ -101,9 +105,32 @@ try:
                 precios["Dólar Blue"] = "Error"
                 precios["Dólar Oficial"] = "Error"
                 precios["Dólar MEP"] = "Error"
+
             return precios
 
-    # 👇 EJECUTAR APP DE FORMA CONTROLADA
+        def actualizar_reloj(self):
+            zonas = {
+                "🇦🇷 AR": "America/Argentina/Buenos_Aires",
+                "🇺🇸 NY": "America/New_York",
+                "🇪🇺 EU": "Europe/Berlin",
+                "🇯🇵 JP": "Asia/Tokyo"
+            }
+
+            ahora = []
+            for etiqueta, zona in zonas.items():
+                tz = timezone(zona)
+                hora = datetime.now(tz).strftime("%H:%M:%S")
+                ahora.append(f"{etiqueta}: {hora}")
+
+            hora_final = " | ".join(ahora)
+            print("🕓", hora_final)  # 👈 Te lo muestra por consola
+            self.clock_widget.update(hora_final)
+
+
+
+
+
+
     if __name__ == "__main__":
         TerminalEconomicaApp().run()
 
@@ -112,4 +139,3 @@ except Exception:
     logging.error(traceback.format_exc())
     print("❌ Error fatal. Revisá 'error.log' para más información.")
     input("Presioná Enter para cerrar...")
-
