@@ -29,6 +29,11 @@ try:
             return os.path.join(sys._MEIPASS, nombre_archivo)
         return os.path.join(os.path.abspath("."), nombre_archivo)
 
+    def truncar(texto, max_len=120):
+        texto = str(texto or "")
+        return texto if len(texto) <= max_len else texto[:max_len - 3].rstrip() + "..."
+
+
     class PrecioPanel(Static):
         def update_content(self, precios):
             contenido = "\n".join(
@@ -40,47 +45,104 @@ try:
         CSS_PATH = ruta_absoluta_recurso("styles.css")
 
         def compose(self) -> ComposeResult:
-            with Vertical():
-                self.clock_widget = Static("Cargando hora...", id="clock")
-                yield self.clock_widget
-                yield Header()
+            self.clock_widget = Static("Cargando hora...", id="clock")  # ✅ Definición
+            self.noticias_widget = ScrollView(id="noticias-scroll")
+            self.scroll_static = Static("Cargando noticias...")
 
-                with Horizontal():
-                    self.scroll_static = Static("Cargando noticias...")
-                    self.noticias_widget = ScrollView(self.scroll_static)
-                    self.precios_widget = PrecioPanel("Cargando precios...")
-                    yield self.noticias_widget
-                    yield self.precios_widget
+            yield self.clock_widget
+            yield Header()
 
-                yield Button("Refrescar", id="refrescar")
-                yield Footer()
+            with Horizontal():
+                yield self.noticias_widget
+                self.precios_widget = PrecioPanel("Cargando precios...")
+                yield self.precios_widget
+
+            yield Button("Refrescar", id="refrescar")
+            yield Footer()
+            
 
         def on_mount(self):
+            self.noticias_widget.mount(self.scroll_static)
             self.actualizar_datos()
             self.set_interval(1, self.actualizar_reloj)
+
 
         def on_button_pressed(self, event):
             if event.button.id == "refrescar":
                 self.actualizar_datos()
-
+        
+        
         def actualizar_datos(self):
-            noticias = self.obtener_noticias()
             precios = self.obtener_precios()
-            contenido = "\n\n".join(
-                f"[b]{n.get('title', 'Sin título')}[/b]\n[yellow]{n.get('source', {}).get('name', '')}[/yellow]\n[i]{n.get('description', '')}[/i]"
-                for n in noticias[:8]
-            )
+            noticias = self.obtener_noticias_region()
+
+            # Agrupar por región
+            agrupadas = {}
+            for noticia in noticias:
+                region = noticia.get("region", "🌍 Otros")
+                if region not in agrupadas:
+                    agrupadas[region] = []
+                agrupadas[region].append(noticia)
+
+            contenido = ""
+            for region, lista in agrupadas.items():
+                contenido += f"[bold yellow]━━━━━━━━━━━━ {region} ━━━━━━━━━━━━[/bold yellow]\n"
+                for n in lista:
+                    titulo = truncar(n.get("title", "Sin título"), 90)
+                    descripcion = truncar(n.get("description", ""), 120)
+                    fuente = n.get("source", {}).get("name", "")
+                    contenido += f"📌 {titulo}\n🔹 [green]{fuente}[/green]: [italic]{descripcion}[/italic]\n\n"
+
             self.scroll_static.update(contenido)
             self.precios_widget.update_content(precios)
 
+        
         def obtener_noticias(self):
             with open(ruta_absoluta_recurso("config.json"), encoding="utf-8") as f:
                 config = json.load(f)
             api_key = config["news_api_key"]
-            url = f"https://newsapi.org/v2/top-headlines?category=business&language=es&apiKey={api_key}"
+            url = f"https://newsapi.org/v2/top-headlines?category=business&language=en&apiKey={api_key}"
             res = requests.get(url)
-            return res.json().get("articles", [])
+            noticias = res.json().get("articles", [])
+            print("Cantidad de noticias:", len(noticias))
+            json_data = res.json()
+            logging.info("Respuesta NewsAPI: %s", json_data)
+            return json_data.get("articles", [])
+        
+        def obtener_noticias_region(self):
+            with open(ruta_absoluta_recurso("config.json"), encoding="utf-8") as f:
+                config = json.load(f)
 
+            api_key = config["news_api_key"]
+            regiones = {
+                "🇦🇷 Argentina": "economia argentina",
+                "🇧🇷 Brasil": "economia brasil",
+                "🇨🇱 Chile": "economia chile",
+                "🇨🇳 China": "economia china",
+                "🇷🇺 Rusia": "economia rusia",
+                "🇺🇦 Ucrania": "economia ucrania",
+                "🇪🇺 Europa": "economia europa"
+            }
+
+            noticias_total = []
+            for region, query in regiones.items():
+                url = (
+                    f"https://newsapi.org/v2/everything?"
+                    f"q={query}&language=es&sortBy=publishedAt&pageSize=4&apiKey={api_key}"
+                )
+                try:
+                    res = requests.get(url)
+                    datos = res.json().get("articles", [])
+                    for n in datos:
+                        n["region"] = region  # 👈 Etiqueta visible
+                        noticias_total.append(n)
+                except Exception as e:
+                    logging.error(f"Error obteniendo noticias para {region}: {e}")
+
+            return noticias_total
+
+
+            
         def obtener_precios(self):
             precios = {}
             try:
@@ -125,9 +187,6 @@ try:
             hora_final = " | ".join(ahora)
             print("🕓", hora_final)  # 👈 Te lo muestra por consola
             self.clock_widget.update(hora_final)
-
-
-
 
 
 

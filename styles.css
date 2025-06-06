@@ -1,3 +1,4 @@
+
 Screen {
     background: black;
     color: white;
@@ -12,9 +13,9 @@ NoticiaPanel {
 
 PrecioPanel {
     border: wide green;
-    padding: 1;
-    width: 1fr;
-    height: 20;
+    padding: 0 1;
+    width: 25;
+    height: auto;
 }
 
 Button {
@@ -24,11 +25,28 @@ Button {
 }
 
 #clock {
-    height: 1;                    
-    padding: 0 1;                 
+    height: 1;
+    padding: 0 1;
     margin: 0;
     color: ansi_bright_yellow;
     text-align: center;
     background: rgb(30, 30, 30);
-    border: none;                 
+    border: none;
+}
+
+ScrollView {
+    height: auto;
+    min-height: 20;
+}
+
+Static {
+    padding: 1 2;
+    color: white;
+    height: auto;
+    min-height: 5;
+}
+
+#noticias-scroll {
+    height: 1fr;
+    overflow: auto;
 }
