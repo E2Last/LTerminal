@@ -1,0 +1,24 @@
+Screen {
+    background: black;
+    color: white;
+}
+
+NoticiaPanel {
+    border: wide purple;
+    padding: 1;
+    width: 1fr;
+    height: 20;
+}
+
+PrecioPanel {
+    border: wide green;
+    padding: 1;
+    width: 1fr;
+    height: 20;
+}
+
+Button {
+    background: darkred;
+    color: white;
+    margin: 1;
+}

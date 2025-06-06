@@ -1,0 +1,6 @@
+# CORRER LA DIST NUEVA 
+
+cd C:\Users\Archivos\LTerminal
+
+pyinstaller LTerminal.spec
+
