@@ -10,6 +10,7 @@ from .utils.helper import ruta_absoluta_recurso, truncar
 from .utils.apis import obtener_precios, obtener_noticias_region
 from .widgets.precios import PrecioPanel
 from .widgets.reloj import generar_hora_multizona
+from .widgets.noticias import NoticiasPanel
 
 # Ruta segura para log de errores
 log_path = os.path.join(os.path.expanduser("~"), "Desktop", "LTerminal_error.log")
@@ -29,23 +30,22 @@ try:
         def compose(self) -> ComposeResult:
             print("!!! Ejecutando compose()")
             self.clock_widget = Static("Cargando hora...", id="clock")
-            self.noticias_widget = ScrollView(id="noticias-scroll")
-            self.scroll_static = Static("Cargando noticias...")
-            
+            self.noticias_widget = NoticiasPanel()
+
             yield self.clock_widget
             yield Header()
 
             with Horizontal():
-                yield self.noticias_widget
+                yield self.noticias_widget  # ✅ Solo acá
                 self.precios_widget = PrecioPanel("Cargando precios...")
                 yield self.precios_widget
 
             yield Button("Refrescar", id="refrescar")
             yield Footer()
 
+
         def on_mount(self):
             print("!!! Ejecutando on_mount()")
-            self.noticias_widget.mount(self.scroll_static)
             self.actualizar_datos()
             self.set_interval(1, self.actualizar_reloj)
 
@@ -55,24 +55,10 @@ try:
 
         def actualizar_datos(self):
             precios = obtener_precios()
-            noticias = obtener_noticias_region()
-
-            agrupadas = {}
-            for noticia in noticias:
-                region = noticia.get("region", "🌍 Otros")
-                agrupadas.setdefault(region, []).append(noticia)
-
-            contenido = ""
-            for region, lista in agrupadas.items():
-                contenido += f"[bold yellow]━━━━━━━━━━━━ {region} ━━━━━━━━━━━━[/bold yellow]\n"
-                for n in lista:
-                    titulo = truncar(n.get("title", "Sin título"), 90)
-                    descripcion = truncar(n.get("description", ""), 120)
-                    fuente = n.get("source", {}).get("name", "")
-                    contenido += f"📌 {titulo}\n🔹 [green]{fuente}[/green]: [italic]{descripcion}[/italic]\n\n"
-
-            self.scroll_static.update(contenido)
+            self.noticias_widget.actualizar_noticias()
             self.precios_widget.update_content(precios)
+
+
 
         def actualizar_reloj(self):
             hora_final = generar_hora_multizona()
