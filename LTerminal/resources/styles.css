@@ -13,11 +13,12 @@ NoticiaPanel {
 
 PrecioPanel {
     border: wide green;
-    padding: 0 1;
-    width: 25;
+    padding: 1 2;
+    width: 46;
     height: auto;
     min-height: 5;
 }
+
 
 Button {
     background: darkred;

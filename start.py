@@ -1,10 +1,15 @@
 import logging
 import traceback
 import ctypes
+import os
+import logging
+
+# Ruta segura fuera de dist (por ejemplo, el Escritorio del usuario)
+log_path = os.path.join(os.path.expanduser("~"), "Desktop", "LTerminal_error.log")
 
 logging.basicConfig(
-    filename="error.log",
-    level=logging.ERROR,
+    filename=log_path,
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
