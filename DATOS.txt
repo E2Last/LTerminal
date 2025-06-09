@@ -1,8 +1,5 @@
-# CORRER LA DIST NUEVA 
-
-cd C:\Users\Archivos\LTerminal
-
-.\venv\Scripts\activate
-
-pyinstaller LTerminal.spec
-
+pyinstaller --onefile --windowed --icon=terminal.ico ^
+--hidden-import=textual ^
+--add-data "LTerminal\\resources\\styles.css;LTerminal\\resources" ^
+--add-data "LTerminal\\config.json;LTerminal" ^
+start.py

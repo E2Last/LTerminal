@@ -5,8 +5,8 @@ a = Analysis(
     ['start.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[('LTerminal\\\\resources\\\\styles.css', 'LTerminal\\\\resources'), ('LTerminal\\\\config.json', 'LTerminal')],
+    hiddenimports=['textual'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['terminal.ico'],
 )

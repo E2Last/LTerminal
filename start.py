@@ -1,8 +1,7 @@
 import logging
 import traceback
-import time
+import ctypes
 
-# Configurar logging global desde el primer momento
 logging.basicConfig(
     filename="error.log",
     level=logging.ERROR,
@@ -10,12 +9,17 @@ logging.basicConfig(
 )
 
 try:
-    from LTerminal import TerminalEconomicaApp
+    from LTerminal.app_main import TerminalEconomicaApp
     TerminalEconomicaApp().run()
 
 except Exception as e:
-    logging.error("Error fatal al iniciar la aplicación:")
+    logging.error("❌ Error al iniciar la app:")
     logging.error(traceback.format_exc())
 
-    print("❌ Error al iniciar la aplicación. Ver error.log para más detalles.")
-    input("\nPresioná Enter para cerrar...")
+    # Mostrar una ventana emergente si falla
+    ctypes.windll.user32.MessageBoxW(
+        0,
+        "Ocurrió un error al iniciar la aplicación.\nRevisá el archivo 'error.log'.",
+        "LTerminal - Error crítico",
+        0x10  # MB_ICONERROR
+    )
