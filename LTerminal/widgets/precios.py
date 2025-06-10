@@ -2,16 +2,27 @@ from textual.widgets import Static
 
 class PrecioPanel(Static):
     def update_content(self, precios: dict):
+        # Secciones dinámicas por palabras clave
         categorias = {
-            "Criptomonedas": ["Bitcoin (BTC)", "Ethereum (ETH)", "Solana (SOL)", "Cardano (ADA)", "Ripple (XRP)"],
-            "Monedas y Commodities": ["Dólar Blue", "Dólar Oficial", "Dólar MEP", "Euro Oficial", "Oro (oz)", "Petróleo WTI"]
+            "Criptomonedas": [],
+            "Monedas y Commodities": [],
+            "Otros": []
         }
 
+        for nombre, valor in precios.items():
+            nombre_lower = nombre.lower()
+            if any(palabra in nombre_lower for palabra in ["bitcoin", "ethereum", "solana", "cardano", "ripple", "crypto"]):
+                categorias["Criptomonedas"].append((nombre, valor))
+            elif any(palabra in nombre_lower for palabra in ["dólar", "euro", "oro", "petróleo", "real", "yen", "libra"]):
+                categorias["Monedas y Commodities"].append((nombre, valor))
+            else:
+                categorias["Otros"].append((nombre, valor))
+
         contenido = ""
-        for titulo, claves in categorias.items():
-            contenido += f"\n[bold reverse]{titulo}[/bold reverse]\n"
-            for clave in claves:
-                valor = precios.get(clave, "N/A")
-                contenido += f"[bold cyan]{clave:<22}[/bold cyan]: [green]{valor}[/green]\n"
+        for titulo, elementos in categorias.items():
+            if elementos:
+                contenido += f"\n[bold reverse]{titulo}[/bold reverse]\n"
+                for nombre, valor in elementos:
+                    contenido += f"[bold cyan]{nombre:<22}[/bold cyan]: [green]{valor}[/green]\n"
 
         self.update(contenido)

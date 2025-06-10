@@ -11,6 +11,16 @@ NoticiaPanel {
     height: 20;
 }
 
+#noticias-scroll {
+    height: 100%;
+    overflow-y: auto;
+}
+
+#noticias-static {
+    padding: 1;
+}
+
+
 PrecioPanel {
     border: wide green;
     padding: 1 2;
@@ -54,3 +64,4 @@ Static {
     height: 1fr;
     overflow: auto;
 }
+

@@ -1,6 +1,6 @@
 {
   "noticias": {
-    "timestamp": "2025-06-09T23:21:51.645543",
+    "timestamp": "2025-06-09T23:34:47.008282",
     "data": [
       {
         "source": {
@@ -257,19 +257,19 @@
     ]
   },
   "precios": {
-    "timestamp": "2025-06-09T23:21:54.095507",
+    "timestamp": "2025-06-09T23:34:49.616258",
     "data": {
-      "Bitcoin (BTC)": "$109562",
-      "Ethereum (ETH)": "$2684.43",
-      "Solana (SOL)": "$159.35",
-      "Cardano (ADA)": "$0.709688",
+      "Bitcoin (BTC)": "$109643",
+      "Ethereum (ETH)": "$2686.67",
+      "Solana (SOL)": "$159.58",
+      "Cardano (ADA)": "$0.710781",
       "Ripple (XRP)": "$2.31",
       "Dólar Blue": "$1185.0",
       "Dólar Oficial": "$1201.0",
       "Dólar MEP": "$1306.0",
       "Euro Oficial": "$1.14",
-      "Oro (oz)": "$3326.5",
-      "Petróleo WTI": "$65.62"
+      "Oro (oz)": "$3325.2",
+      "Petróleo WTI": "$65.58"
     }
   }
 }

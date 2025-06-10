@@ -8,18 +8,23 @@ class NoticiasPanel(Container):
 
     def __init__(self):
         super().__init__()
-        self.scroll = ScrollView(id="noticias-scroll")
-        self.scroll_static = Static("Cargando noticias...")
+        self.scroll_static = Static("Cargando noticias...", id="noticias-static")
+        self.scroll = ScrollView(self.scroll_static, id="noticias-scroll")
 
     def compose(self):
-        yield self.scroll  # ✅ scroll se monta primero
+        yield self.scroll
 
     def on_mount(self):
-        self.scroll.mount(self.scroll_static)
         self.actualizar_noticias()
+        
 
     def actualizar_noticias(self):
         noticias = obtener_noticias_region()
+        print("🔔 Cantidad de noticias:", len(noticias))
+
+        if not noticias:
+            self.scroll_static.update("[red]⚠️ No se pudieron obtener noticias.[/red]")
+            return
 
         agrupadas = {}
         for noticia in noticias:
@@ -28,11 +33,11 @@ class NoticiasPanel(Container):
 
         contenido = ""
         for region, lista in agrupadas.items():
-            contenido += f"[bold yellow]━━━━━━━━━━━━ {region} ━━━━━━━━━━━━[/bold yellow]\n"
+            contenido += f"\n[bold yellow]━━━━━━━━━━━━ {region} ━━━━━━━━━━━━[/bold yellow]\n"
             for n in lista:
                 titulo = truncar(n.get("title", "Sin título"), 90)
                 descripcion = truncar(n.get("description", ""), 120)
-                fuente = n.get("source", {}).get("name", "")
-                contenido += f"📌 {titulo}\n🔹 [green]{fuente}[/green]: [italic]{descripcion}[/italic]\n\n"
+                fuente = n.get("source", {}).get("name", "Fuente desconocida")
+                contenido += f"📌 [b]{titulo}[/b]\n🔹 [green]{fuente}[/green]: [italic]{descripcion}[/italic]\n\n"
 
         self.scroll_static.update(contenido)
