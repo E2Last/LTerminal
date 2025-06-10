@@ -12,7 +12,6 @@ from .widgets.precios import PrecioPanel
 from .widgets.reloj import generar_hora_multizona
 from .widgets.noticias import NoticiasPanel
 
-# Ruta segura para log de errores
 log_path = os.path.join(os.path.expanduser("~"), "Desktop", "LTerminal_error.log")
 
 logging.basicConfig(
@@ -36,7 +35,7 @@ try:
             yield Header()
 
             with Horizontal():
-                yield self.noticias_widget  # ✅ Solo acá
+                yield self.noticias_widget
                 self.precios_widget = PrecioPanel("Cargando precios...")
                 yield self.precios_widget
 

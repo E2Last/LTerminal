@@ -3,6 +3,9 @@ from textual.scroll_view import ScrollView
 from textual.containers import Container
 from ..utils.apis import obtener_noticias_region
 from ..utils.helper import truncar
+import requests
+import json
+from typing import List, Dict, Any
 
 class NoticiasPanel(Container):
 
