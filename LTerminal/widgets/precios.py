@@ -1,28 +1,48 @@
 from textual.widgets import Static
+from rich.text import Text
 
 class PrecioPanel(Static):
     def update_content(self, precios: dict):
-        # Secciones dinámicas por palabras clave
+        from rich import print as rprint
+        rprint("🧪 Precios recibidos:", precios)
+        # Agrupar por categoría
         categorias = {
             "Criptomonedas": [],
             "Monedas y Commodities": [],
+            "Acciones": [],
             "Otros": []
         }
 
-        for nombre, valor in precios.items():
+        for nombre, data in precios.items():
             nombre_lower = nombre.lower()
-            if any(palabra in nombre_lower for palabra in ["bitcoin", "ethereum", "solana", "cardano", "ripple", "crypto"]):
-                categorias["Criptomonedas"].append((nombre, valor))
-            elif any(palabra in nombre_lower for palabra in ["dólar", "euro", "oro", "petróleo", "real", "yen", "libra"]):
-                categorias["Monedas y Commodities"].append((nombre, valor))
-            else:
-                categorias["Otros"].append((nombre, valor))
+            valor = data.get("valor")
+            variacion = data.get("variacion", 0)
 
-        contenido = ""
-        for titulo, elementos in categorias.items():
-            if elementos:
-                contenido += f"\n[bold reverse]{titulo}[/bold reverse]\n"
-                for nombre, valor in elementos:
-                    contenido += f"[bold cyan]{nombre:<22}[/bold cyan]: [green]{valor}[/green]\n"
+            # Determinar flecha y color
+            if variacion > 0:
+                variacion_str = f"[green]🔺 {variacion:.2f}%[/]"
+            elif variacion < 0:
+                variacion_str = f"[red]🔻 {abs(variacion):.2f}%[/]"
+            else:
+                variacion_str = "[white]→ 0.00%[/]"
+
+            linea = f"{nombre:<20} : ${valor} {variacion_str}"
+
+            if any(p in nombre_lower for p in ["bitcoin", "eth", "crypto", "solana", "cardano", "xrp"]):
+                categorias["Criptomonedas"].append(linea)
+            elif any(p in nombre_lower for p in ["dólar", "euro", "oro", "petróleo", "commodity", "real"]):
+                categorias["Monedas y Commodities"].append(linea)
+            elif any(p in nombre_lower for p in ["ypf", "ggal", "tsla", "apple", "nvda", "merval"]):
+                categorias["Acciones"].append(linea)
+            else:
+                categorias["Otros"].append(linea)
+
+        # Construir contenido Rich Text
+        contenido = Text()
+        for titulo, items in categorias.items():
+            if items:
+                contenido.append(f"\n[bold reverse]{titulo}[/bold reverse]\n")
+                for item in items:
+                    contenido.append(item + "\n")
 
         self.update(contenido)

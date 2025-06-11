@@ -5,66 +5,61 @@ from .helper import ruta_absoluta_recurso
 from LTerminal.utils.data_cache import obtener_o_cachear
 import os
 
+API_TWELVE = "https://api.twelvedata.com"
+API_KEY = "c3dbde2efe354dd1b9eb9ea7a1b7004d"
 
 def obtener_precios():
     def fetch_precios():
         precios = {}
 
-        # ░░░ CRIPTOMONEDAS ░░░
+        # ░░░ DOLARAPI ░░░
         try:
-            ids = "bitcoin,ethereum,solana,cardano,ripple"
-            cripto_res = requests.get(
-                "https://api.coingecko.com/api/v3/simple/price",
-                params={"ids": ids, "vs_currencies": "usd"}
-            )
-            cripto_data = cripto_res.json()
-            precios["Bitcoin (BTC)"] = f"${cripto_data['bitcoin']['usd']}"
-            precios["Ethereum (ETH)"] = f"${cripto_data['ethereum']['usd']}"
-            precios["Solana (SOL)"] = f"${cripto_data['solana']['usd']}"
-            precios["Cardano (ADA)"] = f"${cripto_data['cardano']['usd']}"
-            precios["Ripple (XRP)"] = f"${cripto_data['ripple']['usd']}"
+            r = requests.get("https://dolarapi.com/v1/dolares", timeout=5)
+            for entrada in r.json():
+                nombre = entrada["moneda"]
+                valor = entrada["venta"]
+                precios[nombre] = {"valor": valor, "variacion": 0}
         except Exception as e:
-            logging.error(f"❌ Error cripto: {e}")
+            logging.error(f"❌ Error en DolarAPI: {e}")
 
-        # ░░░ DÓLARES ░░░
-        try:
-            dolar_res = requests.get("https://api.bluelytics.com.ar/v2/latest")
-            dolar_data = dolar_res.json()
-            precios["Dólar Blue"] = f"${dolar_data['blue']['value_sell']}"
-            precios["Dólar Oficial"] = f"${dolar_data['oficial']['value_sell']}"
-            precios["Dólar MEP"] = f"${dolar_data['oficial_euro']['value_sell']}"
-        except Exception as e:
-            logging.error(f"❌ Error dólar: {e}")
+        # ░░░ TWELVE DATA: CRIPTOS, ACCIONES, COMMODITIES ░░░
+        activos = {
+            "Bitcoin (BTC)": "BTC/USD",
+            "Ethereum (ETH)": "ETH/USD",
+            "Solana (SOL)": "SOL/USD",
+            "Cardano (ADA)": "ADA/USD",
+            "Ripple (XRP)": "XRP/USD",
+            "Oro (oz)": "XAU/USD",
+            "Petróleo WTI": "WTI/USD",
+            "YPF": "YPF",
+            "Galicia (GGAL)": "GGAL",
+            "Banco Macro (BMA)": "BMA",
+            "Apple (AAPL)": "AAPL",
+            "Microsoft (MSFT)": "MSFT",
+            "Tesla (TSLA)": "TSLA",
+            "Nvidia (NVDA)": "NVDA"
+        }
 
-        # ░░░ EURO ░░░
-        try:
-            res = requests.get("https://v6.exchangerate-api.com/v6/ce19013a4066ac30580c1730/latest/USD")
-            data = res.json()
-            euro_rate = data["conversion_rates"]["EUR"]
-            precios["Euro Oficial"] = f"${round(1 / euro_rate, 2)}"
-        except Exception as e:
-            logging.error(f"❌ Error euro: {e}")
-
-        # ░░░ ORO ░░░
-        try:
-            headers = {"User-Agent": "Mozilla/5.0"}
-            oro_res = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/GC=F", headers=headers)
-            oro_data = oro_res.json()
-            precios["Oro (oz)"] = f"${oro_data['chart']['result'][0]['meta']['regularMarketPrice']}"
-        except Exception as e:
-            logging.error(f"❌ Error oro Yahoo: {e}")
-
-        # ░░░ PETRÓLEO WTI ░░░
-        try:
-            petroleo_res = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/CL=F", headers=headers)
-            petroleo_data = petroleo_res.json()
-            precios["Petróleo WTI"] = f"${petroleo_data['chart']['result'][0]['meta']['regularMarketPrice']}"
-        except Exception as e:
-            logging.error(f"❌ Error petróleo Yahoo: {e}")
+        for nombre, simbolo in activos.items():
+            try:
+                r = requests.get(
+                    f"{API_TWELVE}/quote",
+                    params={"symbol": simbolo, "apikey": API_KEY},
+                    timeout=5
+                )
+                data = r.json()
+                if "price" in data and "percent_change" in data:
+                    precios[nombre] = {
+                        "valor": float(data["price"]),
+                        "variacion": float(data["percent_change"])
+                    }
+            except Exception as e:
+                logging.error(f"❌ Error en Twelve Data ({nombre}): {e}")
 
         return precios
 
     return obtener_o_cachear("precios", minutos=10, funcion_callback=fetch_precios)
+
 
 
 def obtener_noticias_region():

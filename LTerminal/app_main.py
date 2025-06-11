@@ -48,6 +48,14 @@ try:
             print("!!! Ejecutando on_mount()")
             self.actualizar_datos()
             self.set_interval(1, self.actualizar_reloj)
+            
+            precios_fake = {
+            "Bitcoin (BTC)": {"valor": 109000, "variacion": 2.5},
+            "Dólar Blue": {"valor": 1200, "variacion": -0.3},
+            "YPF": {"valor": 570, "variacion": 1.4},
+            "USD": {"valor": 1560, "variacion": 0}
+            }
+            self.query_one(PrecioPanel).update_content(precios_fake)
 
         def on_button_pressed(self, event):
             if event.button.id == "refrescar":
