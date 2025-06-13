@@ -10,23 +10,21 @@ def fetch_desde_api():
     activos = {
         "Bitcoin (BTC)": "BTC/USD",
         "Ethereum (ETH)": "ETH/USD",
-        "Solana (SOL)": "SOL/USD",
-        "Cardano (ADA)": "ADA/USD",
-        "Ripple (XRP)": "XRP/USD",
         "Oro (oz)": "XAU/USD",
-        "Petróleo WTI": "WTI/USD",
         "YPF": "YPF",
-        "Galicia (GGAL)": "GGAL",
-        "Apple (AAPL)": "AAPL",
-        "Tesla (TSLA)": "TSLA",
-        "Nvidia (NVDA)": "NVDA"
+        "Apple (AAPL)": "AAPL"
     }
+
 
     for nombre, simbolo in activos.items():
         try:
             url = f"https://api.twelvedata.com/quote?symbol={simbolo}&apikey={api_key}"
             response = requests.get(url, timeout=10)
             data = response.json()
+            
+            print("DEBUG: datos obtenidos", data)
+
+            
             if "close" in data:
                 precios[nombre] = {
                     "valor": float(data["close"]),
@@ -58,6 +56,7 @@ def fetch_desde_api():
 
 def obtener_precios():
     precios = obtener_o_cachear("precios", minutos=360, funcion_callback=fetch_desde_api)
+
 
     if not isinstance(precios, dict):
         print("❌ Error: no se obtuvieron precios válidos.")

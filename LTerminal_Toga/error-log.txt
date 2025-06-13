@@ -1,8 +1,0 @@
-❌ Error en main_loop():
-Traceback (most recent call last):
-  File "C:\Users\Sistemas-02\Desktop\LTerminal\LTerminal_Toga\main.py", line 80, in LTerminalTogaApp
-    app = main()
-  File "C:\Users\Sistemas-02\Desktop\LTerminal\LTerminal_Toga\main.py", line 75, in main
-    return LTerminalTogaApp("ETerminal - Data", "org.lterminal.data")
-           ^^^^^^^^^^^^^^^^
-NameError: name 'LTerminalTogaApp' is not defined

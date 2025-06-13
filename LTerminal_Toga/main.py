@@ -37,7 +37,9 @@ class LTerminalTogaApp(toga.App):
             # Ventana principal
             self.main_window = toga.MainWindow(title=self.formal_name)
             self.main_window.content = self.main_box
+            self.main_window.size = (1600, 900)  # Tamaño inicial sugerido
             self.main_window.show()
+
 
             # Cargar precios iniciales
             self.actualizar_precios(None)
@@ -71,15 +73,20 @@ class LTerminalTogaApp(toga.App):
                 f.write("❌ Error al actualizar precios:\n")
                 traceback.print_exc(file=f)
                 
-    def main():
-        return LTerminalTogaApp("ETerminal - Data", "org.lterminal.data")
+#AFUERA DE LA CLASE PRINCIPAL
+def main():
+    return LTerminalTogaApp("ETerminal - Data", "org.lterminal.data")
 
-
-    if __name__ == "__main__":
-        try:
-            app = main()
-            app.main_loop()
-        except Exception:
-            with open(log_path, "w", encoding="utf-8") as f:
-                f.write("❌ Error en main_loop():\n")
-                traceback.print_exc(file=f)
+if __name__ == "__main__":
+    try:
+        with open("start.log", "w", encoding="utf-8") as f:
+            f.write("✅ Entró en main()\n")
+        app = main()
+        with open("start.log", "a", encoding="utf-8") as f:
+            f.write("✅ Ejecutando main_loop()\n")
+        app.main_loop()
+    except Exception as e:
+        with open("error-log.txt", "w", encoding="utf-8") as f:
+            import traceback
+            f.write("❌ Error en main_loop():\n")
+            traceback.print_exc(file=f)
