@@ -3,48 +3,57 @@ from toga.style import Pack
 from toga.style.pack import COLUMN
 from apis.precios import obtener_precios
 from widgets.tabla_noticias import NoticiasPanel
-import traceback
-import sys
-from pathlib import Path
+from widgets.tabla_precios import PrecioPanel
+from widgets.reloj_mundial import RelojMundial
 from resources.styles import (
     app_fondo, titulo_label, tabla_precios,
     tabla_noticias, boton_base, contenedor_seccion
 )
-from widgets.tabla_precios import PrecioPanel
+from pathlib import Path
+import traceback
+import asyncio
 
 log_path = Path(__file__).resolve().parent / "error-log.txt"
 
 class LTerminalTogaApp(toga.App):
+    def __init__(self, name, app_id):
+        super().__init__(formal_name=name, app_id=app_id)
+
+    async def reloj_loop(self):
+        while True:
+            self.reloj.actualizar_horas()
+            await asyncio.sleep(1)
+
     def startup(self):
         try:
             # Contenedor principal
             self.main_box = toga.Box(style=app_fondo)
 
+            # Reloj mundial
+            self.reloj = RelojMundial()
+            self.main_box.add(self.reloj)
+            self.add_background_task(self.reloj_loop)
+
             # Título
             self.title_label = toga.Label("📊 Panel de Cotizaciones", style=titulo_label)
             self.main_box.add(self.title_label)
-            # Cargar precios iniciales primero
+
+            # Cotizaciones
             precios_iniciales = obtener_precios()
             self.panel_precios = PrecioPanel(precios_iniciales)
             self.main_box.add(self.panel_precios)
 
-            
-            # Tabla de cotizaciones
-            # self.tabla = toga.Table(headings=["Activo", "Precio", "Variación"], style=tabla_precios)
-            # self.main_box.add(self.tabla)
-
-            
-            # Botón refrescar cotizaciones
+            # Botón refrescar precios
             self.refresh_button = toga.Button("🔄 Refrescar precios", on_press=self.actualizar_precios, style=boton_base)
             self.main_box.add(self.refresh_button)
 
-            # Panel de noticias
+            # Noticias
             self.main_box.add(NoticiasPanel())
 
             # Ventana principal
             self.main_window = toga.MainWindow(title=self.formal_name)
             self.main_window.content = self.main_box
-            self.main_window.size = (1600, 900)  # Tamaño inicial sugerido
+            self.main_window.size = (1600, 900)
             self.main_window.show()
 
         except Exception:
@@ -57,14 +66,13 @@ class LTerminalTogaApp(toga.App):
         try:
             self.main_box.remove(self.panel_precios)
             self.panel_precios = PrecioPanel(obtener_precios())
-            self.main_box.add(self.panel_precios, index=2)  # justo después del título
+            self.main_box.add(self.panel_precios, index=2)
         except Exception:
             with open(log_path, "w", encoding="utf-8") as f:
                 f.write("❌ Error al actualizar precios:\n")
                 traceback.print_exc(file=f)
 
-                
-#AFUERA DE LA CLASE PRINCIPAL
+# Fuera de la clase
 def main():
     return LTerminalTogaApp("ETerminal - Data", "org.lterminal.data")
 
@@ -78,6 +86,4 @@ if __name__ == "__main__":
         app.main_loop()
     except Exception as e:
         with open("error-log.txt", "w", encoding="utf-8") as f:
-            import traceback
-            f.write("❌ Error en main_loop():\n")
             traceback.print_exc(file=f)

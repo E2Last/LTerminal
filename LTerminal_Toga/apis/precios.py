@@ -10,10 +10,26 @@ def fetch_desde_api():
     activos = {
         "Bitcoin (BTC)": "BTC/USD",
         "Ethereum (ETH)": "ETH/USD",
+        "Solana (SOL)": "SOL/USD",
+        "Cardano (ADA)": "ADA/USD",
+        "Dogecoin (DOGE)": "DOGE/USD",
         "Oro (oz)": "XAU/USD",
+        "Gas Natural": "NG=F",
+
         "YPF": "YPF",
-        "Apple (AAPL)": "AAPL"
+        "Apple (AAPL)": "AAPL",
+        "Google (GOOGL)": "GOOGL",
+        "Microsoft (MSFT)": "MSFT",
+        "Nvidia (NVDA)": "NVDA",
+        "Amazon (AMZN)": "AMZN",
+        "Meta (META)": "META",
+        "MercadoLibre (MELI)": "MELI",
+
+        "S&P 500 (SPX)": "SPX",
+        "NASDAQ 100": "NDX",
+        "ETF SPY": "SPY"
     }
+
 
 
     for nombre, simbolo in activos.items():
