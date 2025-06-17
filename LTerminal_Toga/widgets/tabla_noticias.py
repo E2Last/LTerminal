@@ -4,6 +4,8 @@ from toga.style.pack import COLUMN
 from toga import Label, Box, ScrollContainer
 from apis.noticias import obtener_noticias
 from resources.styles import contenedor_seccion, titulo_label, boton_base
+from apis.noticias_actuales import obtener_noticias_newsdataio  # Nueva fuente
+from apis.noticias_gnews import obtener_noticias_gnews
 
 class NoticiasPanel(toga.Box):
     def __init__(self):
@@ -41,16 +43,32 @@ class NoticiasPanel(toga.Box):
         self.actualizar(None)
 
     def actualizar(self, widget):
-        noticias = obtener_noticias()
+        noticias = self.obtener_noticias_combinadas()
+
         regiones = []
         fuentes = []
         titulos = []
 
         for n in noticias:
-            regiones.append(n["region"])
-            fuentes.append(n["fuente"])
-            titulos.append(n["titulo"])
+            regiones.append(n.get("region", "AR"))
+            fuentes.append(n.get("fuente", "News"))
+            titulos.append(n.get("titulo", "Sin título"))
 
         self.region_label.text = "\n".join(regiones)
         self.fuente_label.text = "\n".join(fuentes)
         self.titulo_label.text = "\n".join(titulos)
+
+    def obtener_noticias_combinadas(self):
+        noticias_1 = obtener_noticias()
+        noticias_2 = obtener_noticias_newsdataio()
+        noticias_3 = obtener_noticias_gnews()
+
+        # Etiquetas necesarias
+        for n in noticias_2:
+            n["region"] = "AR"
+            n["fuente"] = "NewsData.io"
+
+        todas = noticias_1 + noticias_2 + noticias_3
+        todas.sort(key=lambda x: x.get("fecha", ""), reverse=True)
+        return todas
+

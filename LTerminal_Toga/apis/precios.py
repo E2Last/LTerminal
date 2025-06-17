@@ -1,7 +1,7 @@
 import requests
 import os
 from apis.data_cache import obtener_o_cachear  # Asegurate que el path sea correcto
-
+from apis.twelve_data import obtener_cotizaciones_twelve
 
 def fetch_desde_api():
     precios = {}
@@ -56,7 +56,7 @@ def fetch_desde_api():
 
 def obtener_precios():
     precios = obtener_o_cachear("precios", minutos=360, funcion_callback=fetch_desde_api)
-
+    precios.update(obtener_cotizaciones_twelve())
 
     if not isinstance(precios, dict):
         print("❌ Error: no se obtuvieron precios válidos.")

@@ -10,6 +10,7 @@ from resources.styles import (
     app_fondo, titulo_label, tabla_precios,
     tabla_noticias, boton_base, contenedor_seccion
 )
+from widgets.tabla_precios import PrecioPanel
 
 log_path = Path(__file__).resolve().parent / "error-log.txt"
 
@@ -22,11 +23,17 @@ class LTerminalTogaApp(toga.App):
             # Título
             self.title_label = toga.Label("📊 Panel de Cotizaciones", style=titulo_label)
             self.main_box.add(self.title_label)
+            # Cargar precios iniciales primero
+            precios_iniciales = obtener_precios()
+            self.panel_precios = PrecioPanel(precios_iniciales)
+            self.main_box.add(self.panel_precios)
 
+            
             # Tabla de cotizaciones
-            self.tabla = toga.Table(headings=["Activo", "Precio", "Variación"], style=tabla_precios)
-            self.main_box.add(self.tabla)
+            # self.tabla = toga.Table(headings=["Activo", "Precio", "Variación"], style=tabla_precios)
+            # self.main_box.add(self.tabla)
 
+            
             # Botón refrescar cotizaciones
             self.refresh_button = toga.Button("🔄 Refrescar precios", on_press=self.actualizar_precios, style=boton_base)
             self.main_box.add(self.refresh_button)
@@ -40,10 +47,6 @@ class LTerminalTogaApp(toga.App):
             self.main_window.size = (1600, 900)  # Tamaño inicial sugerido
             self.main_window.show()
 
-
-            # Cargar precios iniciales
-            self.actualizar_precios(None)
-
         except Exception:
             with open(log_path, "w", encoding="utf-8") as f:
                 f.write("❌ Error en startup():\n")
@@ -52,26 +55,14 @@ class LTerminalTogaApp(toga.App):
 
     def actualizar_precios(self, widget):
         try:
-            self.tabla.data.clear()
-            precios = obtener_precios()
-            
-            if not isinstance(precios, dict):
-                raise ValueError("❌ El resultado de obtener_precios no es un diccionario válido.")
-
-            for nombre, datos in precios.items():
-                valor = f"${datos['valor']:.2f}"
-                variacion = datos['variacion']
-                if variacion > 0:
-                    variacion_str = f"🔺 {variacion:.2f}%"
-                elif variacion < 0:
-                    variacion_str = f"🔻 {abs(variacion):.2f}%"
-                else:
-                    variacion_str = "→ 0.00%"
-                self.tabla.data.append((nombre, valor, variacion_str))
+            self.main_box.remove(self.panel_precios)
+            self.panel_precios = PrecioPanel(obtener_precios())
+            self.main_box.add(self.panel_precios, index=2)  # justo después del título
         except Exception:
             with open(log_path, "w", encoding="utf-8") as f:
                 f.write("❌ Error al actualizar precios:\n")
                 traceback.print_exc(file=f)
+
                 
 #AFUERA DE LA CLASE PRINCIPAL
 def main():

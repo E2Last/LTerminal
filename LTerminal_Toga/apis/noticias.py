@@ -2,8 +2,12 @@ import requests
 import json
 import logging
 from pathlib import Path
+from apis.data_cache import obtener_o_cachear
 
 def obtener_noticias():
+    return obtener_o_cachear("noticias_clasicas", 15, _obtener_noticias)
+
+def _obtener_noticias():
     noticias_total = []
 
     try:
@@ -38,6 +42,7 @@ def obtener_noticias():
                     "fuente": n["source"]["name"],
                     "url": n["url"]
                 })
+
     except Exception as e:
         logging.error(f"❌ Error obteniendo noticias: {e}")
 

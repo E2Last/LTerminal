@@ -1,6 +1,9 @@
 {
     "news_api_key": "ba08eec71b894062a8f3545e8ede3743",
+    "newsdataio": "pub_87862e27979e4f6ea817c624a2a561c7",
+    "gnews_api_key": "54b4939a81b32597d7530b3a3924c21d",
     "exchange_api_key": "ce19013a4066ac30580c1730",
-    "alpha_api_key": "NVN9P5VVRK55L5BW"
+    "alpha_api_key": "NVN9P5VVRK55L5BW",
+    "twelve_api_key": "c3dbde2efe354dd1b9eb9ea7a1b7004d"
 }
   
