@@ -58,7 +58,7 @@ class PrecioPanel(toga.Box):
 
                     fila = Box(style=Pack(direction="row"))
                     fila.add(Label(nombre, style=Pack(width=160, color="#38CF39")))  # verde lima
-                    fila.add(Label(f"${datos['valor']:.2f}", style=Pack(width=100, color="white")))
+                    fila.add(Label(f"${datos['valor']:.2f}", style=Pack(width=100, color="#38CF39")))
                     fila.add(Label(variacion_str, style=Pack(width=100, color="yellow")))
                     col.add(fila)
                 columnas.append(col)

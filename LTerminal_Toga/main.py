@@ -18,10 +18,12 @@ log_path = Path(__file__).resolve().parent / "error-log.txt"
 class LTerminalTogaApp(toga.App):
     def __init__(self, name, app_id):
         super().__init__(formal_name=name, app_id=app_id)
+        
     async def reloj_loop(self):
         while True:
             self.reloj.actualizar_horas()
             await asyncio.sleep(1)
+
 
     def startup(self):
         try:
@@ -31,7 +33,6 @@ class LTerminalTogaApp(toga.App):
             # Reloj mundial
             self.reloj = RelojMundial()
             self.main_box.add(self.reloj)
-            self.add_background_task(self.reloj_loop)
 
             # Título
             self.title_label = toga.Label("📊 Panel de Cotizaciones", style=titulo_label)
@@ -54,6 +55,9 @@ class LTerminalTogaApp(toga.App):
             self.main_window.content = self.main_box
             self.main_window.size = (1600, 900)
             self.main_window.show()
+            # Aseguramos que se registre en el loop de eventos
+            loop = asyncio.get_event_loop()
+            loop.call_later(0.1, lambda: self.add_background_task(self.reloj_loop))
 
         except Exception:
             with open(log_path, "w", encoding="utf-8") as f:
@@ -71,7 +75,6 @@ class LTerminalTogaApp(toga.App):
                 f.write("❌ Error al actualizar precios:\n")
                 traceback.print_exc(file=f)
 
-# Fuera de la clase
 def main():
     return LTerminalTogaApp("ETerminal - Data", "org.lterminal.data")
 
@@ -82,7 +85,7 @@ if __name__ == "__main__":
         app = main()
         with open("start.log", "a", encoding="utf-8") as f:
             f.write("✅ Ejecutando main_loop()\n")
-        app.main_loop()
+        app.main_loop()  # SOLO esto, no startup(), no add_background_task()
     except Exception as e:
         with open("error-log.txt", "w", encoding="utf-8") as f:
             traceback.print_exc(file=f)
