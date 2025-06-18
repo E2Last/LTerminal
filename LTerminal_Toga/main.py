@@ -4,7 +4,6 @@ from toga.style.pack import COLUMN
 from apis.precios import obtener_precios
 from widgets.tabla_noticias import NoticiasPanel
 from widgets.tabla_precios import PrecioPanel
-from widgets.reloj_mundial import RelojMundial
 from resources.styles import (
     app_fondo, titulo_label, tabla_precios,
     tabla_noticias, boton_base, contenedor_seccion
@@ -12,13 +11,13 @@ from resources.styles import (
 from pathlib import Path
 import traceback
 import asyncio
+from widgets.reloj_mundial import RelojMundial
 
 log_path = Path(__file__).resolve().parent / "error-log.txt"
 
 class LTerminalTogaApp(toga.App):
     def __init__(self, name, app_id):
         super().__init__(formal_name=name, app_id=app_id)
-
     async def reloj_loop(self):
         while True:
             self.reloj.actualizar_horas()
